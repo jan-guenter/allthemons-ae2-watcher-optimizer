@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8.7",
+  "package": "io.github.janguenter.atmonsae2optimizer.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "server": [
+    "StorageServiceMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

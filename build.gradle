@@ -1,0 +1,175 @@
+plugins {
+    id 'java-library'
+    id 'checkstyle'
+    id 'maven-publish'
+    id 'net.neoforged.moddev' version '2.0.140'
+}
+
+group = mod_group_id
+version = mod_version
+
+base {
+    archivesName = artifact_id
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    withSourcesJar()
+}
+
+neoForge {
+    version = neoforge_version
+
+    mods {
+        atmons_ae2_optimizer {
+            sourceSet sourceSets.main
+        }
+    }
+
+    unitTest {
+        enable()
+        testedMod = mods.atmons_ae2_optimizer
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.appliedenergistics:appliedenergistics2:${ae2_version}"
+
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    def values = [
+        mod_id     : mod_id,
+        mod_name   : mod_name,
+        mod_version: mod_version
+    ]
+    inputs.properties(values)
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand(values)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
+}
+
+checkstyle {
+    toolVersion = '10.18.2'
+    configFile = file('config/checkstyle/checkstyle.xml')
+}
+
+tasks.withType(Checkstyle).configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.named('jar', Jar).configure {
+    manifest.attributes('MixinConfigs': 'atmons_ae2_optimizer.mixins.json')
+}
+
+def productionJar = tasks.named('jar', Jar).flatMap { it.archiveFile }
+
+tasks.register('verifyProductionJar') {
+    dependsOn tasks.named('jar')
+    inputs.file(productionJar)
+
+    doLast {
+        def jarFile = inputs.files.singleFile
+        def zipFile = new java.util.zip.ZipFile(jarFile)
+        try {
+            def entries = zipFile.entries()
+                    .findAll { !it.directory }
+                    .collect { it.name }
+            def requiredEntries = [
+                'META-INF/MANIFEST.MF',
+                'META-INF/neoforge.mods.toml',
+                'atmons_ae2_optimizer.mixins.json'
+            ]
+            def missingEntries = requiredEntries.findAll { !entries.contains(it) }
+            if (!missingEntries.isEmpty()) {
+                throw new GradleException("Production JAR is missing required entries: ${missingEntries}")
+            }
+
+            def unexpectedEntries = entries.findAll {
+                !(it in requiredEntries)
+                        && !(it.startsWith('io/github/janguenter/atmonsae2optimizer/')
+                        && it.endsWith('.class'))
+            }
+            if (!unexpectedEntries.isEmpty()) {
+                throw new GradleException("Production JAR contains unexpected entries: ${unexpectedEntries}")
+            }
+
+            def productionClasses = entries.findAll {
+                it.startsWith('io/github/janguenter/atmonsae2optimizer/') && it.endsWith('.class')
+            }
+            if (productionClasses.isEmpty()) {
+                throw new GradleException('Production JAR contains no project classes')
+            }
+        } finally {
+            zipFile.close()
+        }
+    }
+}
+
+tasks.named('check').configure {
+    dependsOn tasks.named('verifyProductionJar')
+}
+
+publishing {
+    publications {
+        mod(MavenPublication) {
+            from components.java
+            artifactId = artifact_id
+
+            pom {
+                name = mod_name
+                description = 'Server-only interval scheduler and diagnostics for AE2 storage watcher censuses'
+                url = 'https://github.com/jan-guenter/allthemons-ae2-watcher-optimizer'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/license/mit'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'jan-guenter'
+                        name = 'Jan Guenter'
+                        url = 'https://github.com/jan-guenter'
+                    }
+                }
+                scm {
+                    connection =
+                            'scm:git:https://github.com/jan-guenter/allthemons-ae2-watcher-optimizer.git'
+                    developerConnection =
+                            'scm:git:ssh://git@github.com/jan-guenter/allthemons-ae2-watcher-optimizer.git'
+                    url = 'https://github.com/jan-guenter/allthemons-ae2-watcher-optimizer'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'GitHubPackages'
+            url = uri('https://maven.pkg.github.com/jan-guenter/allthemons-ae2-watcher-optimizer')
+            credentials {
+                username = System.getenv('GITHUB_ACTOR')
+                password = System.getenv('GITHUB_TOKEN')
+            }
+        }
+    }
+}
