@@ -34,6 +34,10 @@ jobs:
         shell: bash
         run: |
           project_version="$(sed -n 's/^mod_version=//p' gradle.properties)"
+          if [[ ! "${project_version}" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "mod_version must be a stable SemVer x.y.z value: ${project_version}" >&2
+            exit 1
+          fi
           expected_tag="v${project_version}"
           if [[ "${GITHUB_REF_NAME}" != "${expected_tag}" ]]; then
             echo "Tag ${GITHUB_REF_NAME} does not match mod_version ${project_version}" >&2
