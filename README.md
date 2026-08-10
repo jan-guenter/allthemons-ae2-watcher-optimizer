@@ -1,6 +1,6 @@
 # All the Mons AE2 Watcher Optimizer
 
-A dedicated-server-only NeoForge add-on for All the Mons 1.1.1. It reduces
+A dedicated-server-only NeoForge add-on for All the Mons 1.2.0. It reduces
 the average cost of Applied Energistics 2 storage watchers by running AE2's
 unchanged full storage census at a configurable, deterministic interval for
 each grid instead of every tick.
@@ -13,11 +13,11 @@ required state in worlds, grids, block entities, or items.
 
 | Component | Supported version |
 | --- | --- |
-| All the Mons | exactly 1.1.1 |
+| All the Mons | exactly 1.2.0 |
 | Minecraft | 1.21.1 |
-| NeoForge | 21.1.234 through the 21.1 line |
+| NeoForge | 21.1.248 through the 21.1 line |
 | Applied Energistics 2 | exactly 19.2.17 |
-| ExtendedAE, when installed | exactly 1.21-2.2.33-neoforge |
+| ExtendedAE, when installed | exactly 1.21-2.2.35-neoforge |
 | ME Requester, when installed | exactly 1.21.1-1.4.3 |
 | Java | 21 |
 
@@ -55,8 +55,8 @@ grid ID.
 
 ## Why exact-interest polling is not implemented
 
-Exact-interest polling is deliberately unsupported in 0.1.0. AE2 19.2.17
-offers:
+Exact-interest polling is deliberately unsupported in the 0.1.x line. AE2
+19.2.17 offers:
 
 - complete availability enumeration through
   `MEStorage.getAvailableStacks(KeyCounter)`; and
@@ -146,6 +146,10 @@ The exact source and shipped JARs were inspected:
 All of those watcher types continue to use the stock full census and stock
 callback path; they share the configured delay.
 
+The All the Mons 1.2.0 update audit, exact artifact identities, hashes, source
+commits, and inspected change surface are recorded in
+[`docs/compatibility-1.2.0.md`](docs/compatibility-1.2.0.md).
+
 ## Rollout and rollback
 
 For rollout:
@@ -170,17 +174,22 @@ interval throttling to restore stock scheduling while retaining diagnostics.
 Automated verification includes deterministic scheduling tests, diagnostics
 counter tests, an AE2 signature test, Checkstyle, a clean build, and a
 production-JAR content check. The JAR check rejects third-party classes and
-unexpected resources. Ten JUnit tests pass through ModDevGradle's server-side
-unit-test launcher; that launcher loads NeoForge, AE2, GuideME, this mod, its
-required Mixin configuration, and the startup compatibility guard.
+unexpected resources. Eleven JUnit tests pass through ModDevGradle's
+server-side unit-test launcher; that launcher loads NeoForge, AE2, GuideME,
+this mod, its required Mixin configuration, and the startup compatibility
+guard.
 
 The ModDevGradle unit-test launch is not a full dedicated-server startup and
 is not presented as one.
 
+A fresh-world dedicated-server smoke test was also run with the exact All the
+Mons 1.2.0 server archive. The server loaded this 0.1.1 JAR, passed the startup
+compatibility guard, reached `Done`, returned a valid empty-grid response to
+`/atmonsae2 status`, and shut down cleanly.
+
 The following environment-dependent checks are still pending and are not
 claimed by this project:
 
-- full All the Mons 1.1.1 dedicated-server startup;
 - unmodified-client connection;
 - production-world compatibility;
 - the complete storage-provider/watcher transition matrix; and
@@ -208,7 +217,7 @@ GitHub Release.
 Maven coordinates:
 
 ```text
-io.github.jan-guenter:allthemons-ae2-watcher-optimizer:0.1.0
+io.github.jan-guenter:allthemons-ae2-watcher-optimizer:0.1.1
 ```
 
 GitHub Packages repository:

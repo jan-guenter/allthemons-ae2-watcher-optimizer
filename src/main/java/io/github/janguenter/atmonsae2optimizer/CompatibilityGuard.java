@@ -19,7 +19,7 @@ import net.neoforged.fml.ModList;
 
 public final class CompatibilityGuard {
     private static final String EXPECTED_AE2 = "19.2.17";
-    private static final String EXPECTED_EXTENDED_AE = "1.21-2.2.33-neoforge";
+    private static final String EXPECTED_EXTENDED_AE = "1.21-2.2.35-neoforge";
     private static final String EXPECTED_ME_REQUESTER = "1.21.1-1.4.3";
 
     private CompatibilityGuard() {
