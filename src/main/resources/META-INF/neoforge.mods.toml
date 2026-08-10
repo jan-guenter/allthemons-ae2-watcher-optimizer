@@ -19,7 +19,7 @@ config = "atmons_ae2_optimizer.mixins.json"
 [[dependencies.${mod_id}]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.1.234,21.2)"
+versionRange = "[21.1.248,21.2)"
 ordering = "NONE"
 side = "SERVER"
 
@@ -40,7 +40,7 @@ side = "SERVER"
 [[dependencies.${mod_id}]]
 modId = "extendedae"
 type = "optional"
-versionRange = "[1.21-2.2.33-neoforge]"
+versionRange = "[1.21-2.2.35-neoforge]"
 ordering = "AFTER"
 side = "SERVER"
 

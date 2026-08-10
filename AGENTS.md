@@ -9,6 +9,7 @@ This repository is the independent project
 | Maven artifact ID | `allthemons-ae2-watcher-optimizer` |
 | Maven group | `io.github.jan-guenter` |
 | Initial version | `0.1.0` |
+| Current reviewed version | `0.1.1` |
 | License for this add-on | MIT |
 | Java | 21 |
 | Gradle wrapper | 8.10.2 |
@@ -35,22 +36,24 @@ This repository is the independent project
 
 ## Authoritative compatibility evidence
 
-The original investigation used these exact versions:
+The current compatibility investigation used these exact versions:
 
 | Component | Exact evidence |
 | --- | --- |
-| All the Mons | 1.1.1, repository commit `94a224acf6eace3edf7ea64e6033b458f5bda288` |
+| All the Mons | 1.2.0, repository commit `c7bb230f21d14d26859d0b92548f089b3a493ad9` |
 | Minecraft | 1.21.1 |
-| NeoForge | 21.1.234 |
+| NeoForge | 21.1.248 |
 | AE2 source | tag `neoforge/v19.2.17`, commit `79ee2c704ad62941a426c26b1cb1f76ef5b2ee5a` |
 | AE2 JAR | `appliedenergistics2-19.2.17.jar`, SHA-256 `460d779a0609b81409907d9956de8f6f70a1b0912257e3e5c3c7e75ac9630e95` |
-| ExtendedAE source | tag `1.21-2.2.33-neoforge`, commit `90005ee29839fb9fa83bbe6544919c722f8b0dc6` |
-| ExtendedAE JAR | SHA-256 `6652ed1ea4b71f585d48c05a195a77594a7a2bd1ecea0fc805db2122aafad734` |
+| ExtendedAE source | tag `1.21-2.2.35-neoforge`, commit `3776bc854458301bbcc9a44a8238d70a0e3dc00d` |
+| ExtendedAE JAR | SHA-256 `14a2860fa2c747e9dda2279b8933fac6311fecfee166c765171022b902591c65` |
 | ME Requester source | tag `v1.21.1-neoforge-1.4.3`, commit `fce75946bbb00c7a4705cb114d1423a284fb112a` |
 | ME Requester JAR | SHA-256 `68f3c861a802d48afeb6e3a48e8ee4f8633904340ac3f89f17493dc84490e385` |
 
-The source/JAR paths above belong to the investigation workspace and must
-never be added to this repository.
+The complete 1.2.0 audit, including changed adjacent mods and exact CurseForge
+project/file identities, is in [`docs/compatibility-1.2.0.md`](docs/compatibility-1.2.0.md).
+Source/JAR paths in the investigation workspace must never be added to this
+repository.
 
 ## Exact AE2 19.2.17 patch surface
 
@@ -120,7 +123,7 @@ were scanned for `IStorageWatcherNode`.
 - `AbstractMonitorPart` adds its configured exact item to its storage watcher.
   Conversion Monitor subclasses share this behavior.
 
-### ExtendedAE 1.21-2.2.33-neoforge
+### ExtendedAE 1.21-2.2.35-neoforge
 
 - `PartThresholdLevelEmitter` has an `IStorageWatcherNode`.
 - A configured non-fuzzy threshold emitter registers one exact key.
@@ -204,7 +207,7 @@ The gate includes:
 rejects any other package or resource, preventing accidental third-party
 bundling.
 
-The current suite contains 10 tests. Its ModDevGradle launch loads NeoForge,
+The current suite contains 11 tests. Its ModDevGradle launch loads NeoForge,
 AE2, GuideME, the mod entrypoint, the physical-server Mixin configuration, and
 the startup guard. This is useful application/signature coverage, but it is
 not a full dedicated-server startup, world test, or client-connection test.
@@ -221,6 +224,25 @@ unzip -p build/libs/allthemons-ae2-watcher-optimizer-<version>.jar \
 
 Do not treat the ModDevGradle unit-test launch as a dedicated-server runtime
 test.
+
+### All the Mons 1.2.0 runtime smoke
+
+Release 0.1.1 was additionally tested with a fresh temporary server extracted
+from the exact `ServerFiles-1.2.0.zip` archive recorded in
+`docs/compatibility-1.2.0.md`. With the production 0.1.1 JAR installed, the
+server:
+
+- discovered `atmons_ae2_optimizer` 0.1.1 alongside AE2 19.2.17,
+  ExtendedAE 2.2.35, and ME Requester 1.4.3;
+- logged that the exact AE2 compatibility guard passed;
+- reached `Done` on a new world;
+- executed `atmonsae2 status` and reported zero live grids; and
+- shut down cleanly through the `stop` command.
+
+This proves fresh-world dedicated-server startup and command registration for
+the inspected pack. It does not prove unmodified-client connection,
+production-world behavior, the storage-provider transition matrix, or Spark
+performance.
 
 ## Release procedure
 
